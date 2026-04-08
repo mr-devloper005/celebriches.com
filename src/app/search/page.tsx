@@ -89,10 +89,10 @@ export default async function SearchPage({
               name="q"
               defaultValue={query}
               placeholder="Search across tasks..."
-              className="h-11 pl-9"
+              className="h-11 pl-10"
             />
           </div>
-          <Button type="submit" className="h-11">
+          <Button type="submit" className="h-11 shrink-0 px-6">
             Search
           </Button>
         </form>

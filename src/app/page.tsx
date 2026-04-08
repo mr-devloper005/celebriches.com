@@ -74,66 +74,66 @@ function getPostMeta(post?: SitePost | null) {
 function getDirectoryTone(brandPack: string) {
   if (brandPack === 'market-utility') {
     return {
-      shell: 'bg-[#f5f7f1] text-[#1f2617]',
-      hero: 'bg-[linear-gradient(180deg,#eef4e4_0%,#f8faf4_100%)]',
-      panel: 'border border-[#d5ddc8] bg-white shadow-[0_24px_64px_rgba(64,76,34,0.08)]',
-      soft: 'border border-[#d5ddc8] bg-[#eff3e7]',
-      muted: 'text-[#5b664c]',
-      title: 'text-[#1f2617]',
-      badge: 'bg-[#1f2617] text-[#edf5dc]',
-      action: 'bg-[#1f2617] text-[#edf5dc] hover:bg-[#2f3a24]',
-      actionAlt: 'border border-[#d5ddc8] bg-white text-[#1f2617] hover:bg-[#eef3e7]',
+      shell: 'bg-muted/40 text-foreground',
+      hero: 'bg-gradient-to-b from-muted/60 to-background',
+      panel: 'border border-border bg-card shadow-[var(--shadow-card)]',
+      soft: 'border border-border bg-muted/50',
+      muted: 'text-muted-foreground',
+      title: 'text-foreground',
+      badge: 'bg-primary text-primary-foreground',
+      action: 'bg-primary text-primary-foreground hover:bg-primary/90',
+      actionAlt: 'border border-border bg-card text-foreground hover:bg-muted/70',
     }
   }
   return {
-    shell: 'bg-[#f8fbff] text-slate-950',
-    hero: 'bg-[linear-gradient(180deg,#eef6ff_0%,#ffffff_100%)]',
-    panel: 'border border-slate-200 bg-white shadow-[0_24px_64px_rgba(15,23,42,0.08)]',
-    soft: 'border border-slate-200 bg-slate-50',
-    muted: 'text-slate-600',
-    title: 'text-slate-950',
-    badge: 'bg-slate-950 text-white',
-    action: 'bg-slate-950 text-white hover:bg-slate-800',
-    actionAlt: 'border border-slate-200 bg-white text-slate-950 hover:bg-slate-100',
+    shell: 'bg-background text-foreground',
+    hero: 'bg-gradient-to-b from-muted/50 to-background',
+    panel: 'border border-border bg-card shadow-[var(--shadow-card)]',
+    soft: 'border border-border bg-muted/50',
+    muted: 'text-muted-foreground',
+    title: 'text-foreground',
+    badge: 'bg-foreground text-background',
+    action: 'bg-primary text-primary-foreground hover:bg-primary/90',
+    actionAlt: 'border border-border bg-card text-foreground hover:bg-muted/70',
   }
 }
 
 function getEditorialTone() {
   return {
-    shell: 'bg-[#fbf6ee] text-[#241711]',
-    panel: 'border border-[#dcc8b7] bg-[#fffdfa] shadow-[0_24px_60px_rgba(77,47,27,0.08)]',
-    soft: 'border border-[#e6d6c8] bg-[#fff4e8]',
-    muted: 'text-[#6e5547]',
-    title: 'text-[#241711]',
-    badge: 'bg-[#241711] text-[#fff1e2]',
-    action: 'bg-[#241711] text-[#fff1e2] hover:bg-[#3a241b]',
-    actionAlt: 'border border-[#dcc8b7] bg-transparent text-[#241711] hover:bg-[#f5e7d7]',
+    shell: 'bg-background text-foreground',
+    panel: 'border border-border/80 bg-card shadow-[var(--shadow-card)]',
+    soft: 'border border-border/70 bg-muted/50',
+    muted: 'text-muted-foreground',
+    title: 'text-foreground',
+    badge: 'bg-foreground text-background',
+    action: 'bg-primary text-primary-foreground shadow-md shadow-primary/20 hover:bg-primary/90',
+    actionAlt: 'border border-border bg-background/80 text-foreground hover:bg-muted/80',
   }
 }
 
 function getVisualTone() {
   return {
-    shell: 'bg-[#07101f] text-white',
-    panel: 'border border-white/10 bg-[rgba(11,18,31,0.78)] shadow-[0_28px_80px_rgba(0,0,0,0.35)]',
-    soft: 'border border-white/10 bg-white/6',
-    muted: 'text-slate-300',
+    shell: 'bg-[oklch(0.16_0.04_265)] text-[oklch(0.97_0.01_230)]',
+    panel: 'border border-white/12 bg-[oklch(0.2_0.045_265/0.88)] shadow-[0_28px_80px_rgba(0,0,0,0.4)]',
+    soft: 'border border-white/12 bg-white/8',
+    muted: 'text-white/65',
     title: 'text-white',
-    badge: 'bg-[#8df0c8] text-[#07111f]',
-    action: 'bg-[#8df0c8] text-[#07111f] hover:bg-[#77dfb8]',
-    actionAlt: 'border border-white/10 bg-white/6 text-white hover:bg-white/10',
+    badge: 'bg-primary text-primary-foreground',
+    action: 'bg-primary text-primary-foreground hover:bg-primary/88',
+    actionAlt: 'border border-white/15 bg-white/8 text-white hover:bg-white/12',
   }
 }
 
 function getCurationTone() {
   return {
-    shell: 'bg-[#f7f1ea] text-[#261811]',
-    panel: 'border border-[#ddcdbd] bg-[#fffaf4] shadow-[0_24px_60px_rgba(91,56,37,0.08)]',
-    soft: 'border border-[#e8dbce] bg-[#f3e8db]',
-    muted: 'text-[#71574a]',
-    title: 'text-[#261811]',
-    badge: 'bg-[#5b2b3b] text-[#fff0f5]',
-    action: 'bg-[#5b2b3b] text-[#fff0f5] hover:bg-[#74364b]',
-    actionAlt: 'border border-[#ddcdbd] bg-transparent text-[#261811] hover:bg-[#efe3d6]',
+    shell: 'bg-background text-foreground',
+    panel: 'border border-border/80 bg-card shadow-[var(--shadow-card)]',
+    soft: 'border border-border/70 bg-muted/55',
+    muted: 'text-muted-foreground',
+    title: 'text-foreground',
+    badge: 'bg-accent text-accent-foreground',
+    action: 'bg-primary text-primary-foreground shadow-md shadow-primary/20 hover:bg-primary/90',
+    actionAlt: 'border border-border bg-background/90 text-foreground hover:bg-muted/70',
   }
 }
 
@@ -300,7 +300,7 @@ function EditorialHome({ primaryTask, articlePosts, supportTasks }: { primaryTas
             <p className="text-xs font-semibold uppercase tracking-[0.24em] opacity-70">Inside this issue</p>
             <div className="mt-5 space-y-5">
               {side.map((post) => (
-                <Link key={post.id} href={`/articles/${post.slug}`} className="block border-b border-black/10 pb-5 last:border-b-0 last:pb-0">
+                <Link key={post.id} href={`/articles/${post.slug}`} className="block border-b border-border/80 pb-5 transition-colors hover:border-primary/30 last:border-b-0 last:pb-0">
                   <p className="text-sm font-semibold uppercase tracking-[0.18em] opacity-60">Feature</p>
                   <h3 className="mt-2 text-xl font-semibold">{post.title}</h3>
                   <p className={`mt-2 text-sm leading-7 ${tone.muted}`}>{post.summary || 'Long-form perspective with a calmer reading rhythm.'}</p>

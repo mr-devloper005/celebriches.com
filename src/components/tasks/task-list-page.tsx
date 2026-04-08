@@ -24,18 +24,20 @@ const taskIcons: Record<TaskKey, any> = {
 }
 
 const variantShells = {
-  'listing-directory': 'bg-[radial-gradient(circle_at_top_left,rgba(56,189,248,0.08),transparent_24%),linear-gradient(180deg,#f8fbff_0%,#ffffff_100%)]',
-  'listing-showcase': 'bg-[linear-gradient(180deg,#ffffff_0%,#f4f9ff_100%)]',
-  'article-editorial': 'bg-[radial-gradient(circle_at_top_left,rgba(251,191,36,0.08),transparent_20%),linear-gradient(180deg,#fff8ef_0%,#ffffff_100%)]',
-  'article-journal': 'bg-[linear-gradient(180deg,#fffdf9_0%,#f7f1ea_100%)]',
-  'image-masonry': 'bg-[linear-gradient(180deg,#09101d_0%,#111c2f_100%)] text-white',
-  'image-portfolio': 'bg-[linear-gradient(180deg,#07111f_0%,#13203a_100%)] text-white',
-  'profile-creator': 'bg-[linear-gradient(180deg,#0a1120_0%,#101c34_100%)] text-white',
-  'profile-business': 'bg-[linear-gradient(180deg,#f6fbff_0%,#ffffff_100%)]',
-  'classified-bulletin': 'bg-[linear-gradient(180deg,#edf3e4_0%,#ffffff_100%)]',
-  'classified-market': 'bg-[linear-gradient(180deg,#f4f6ef_0%,#ffffff_100%)]',
-  'sbm-curation': 'bg-[linear-gradient(180deg,#fff7ee_0%,#ffffff_100%)]',
-  'sbm-library': 'bg-[linear-gradient(180deg,#f7f8fc_0%,#ffffff_100%)]',
+  'listing-directory':
+    'bg-[radial-gradient(circle_at_top_left,oklch(0.55_0.08_220/0.1),transparent_26%),linear-gradient(180deg,var(--background)_0%,oklch(0.99_0.005_230)_100%)]',
+  'listing-showcase': 'bg-gradient-to-b from-muted/40 to-background',
+  'article-editorial':
+    'bg-[radial-gradient(circle_at_top_left,oklch(0.8_0.138_82/0.1),transparent_24%),linear-gradient(180deg,var(--background)_0%,oklch(0.98_0.008_225)_100%)]',
+  'article-journal': 'bg-gradient-to-b from-muted/45 to-background',
+  'image-masonry': 'bg-[linear-gradient(180deg,oklch(0.14_0.04_265)_0%,oklch(0.18_0.045_270)_100%)] text-white',
+  'image-portfolio': 'bg-[linear-gradient(180deg,oklch(0.12_0.045_270)_0%,oklch(0.16_0.04_265)_100%)] text-white',
+  'profile-creator': 'bg-[linear-gradient(180deg,oklch(0.14_0.04_265)_0%,oklch(0.18_0.045_270)_100%)] text-white',
+  'profile-business': 'bg-gradient-to-b from-muted/35 to-background',
+  'classified-bulletin': 'bg-gradient-to-b from-muted/50 to-background',
+  'classified-market': 'bg-gradient-to-b from-muted/40 to-background',
+  'sbm-curation': 'surface-task-sbm',
+  'sbm-library': 'bg-gradient-to-b from-muted/35 to-background',
 } as const
 
 export async function TaskListPage({ task, category }: { task: TaskKey; category?: string }) {
@@ -66,11 +68,11 @@ export async function TaskListPage({ task, category }: { task: TaskKey; category
       }
     : layoutKey.startsWith('article') || layoutKey.startsWith('sbm')
       ? {
-          muted: 'text-[#72594a]',
-          panel: 'border border-[#dbc6b6] bg-white/90',
-          soft: 'border border-[#dbc6b6] bg-[#fff8ef]',
-          input: 'border border-[#dbc6b6] bg-white text-[#2f1d16]',
-          button: 'bg-[#2f1d16] text-[#fff4e4] hover:bg-[#452920]',
+          muted: 'text-muted-foreground',
+          panel: 'border border-border/80 bg-card/95 shadow-sm backdrop-blur-sm',
+          soft: 'border border-border/70 bg-muted/45',
+          input: 'border border-border bg-background text-foreground rounded-xl',
+          button: 'rounded-full bg-primary text-primary-foreground shadow-md shadow-primary/15 hover:bg-primary/90',
         }
       : {
           muted: 'text-slate-600',

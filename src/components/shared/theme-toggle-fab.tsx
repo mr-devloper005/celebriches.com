@@ -13,9 +13,9 @@ export function ThemeToggleFab() {
 
   useEffect(() => {
     if (typeof window === 'undefined') return
-    const nextMode: ThemeMode = 'light'
-    document.documentElement.classList.remove('dark')
-    window.localStorage.setItem(storageKeys.theme, nextMode)
+    const stored = window.localStorage.getItem(storageKeys.theme) as ThemeMode | null
+    const nextMode: ThemeMode = stored === 'dark' ? 'dark' : 'light'
+    document.documentElement.classList.toggle('dark', nextMode === 'dark')
     setMode(nextMode)
   }, [])
 
