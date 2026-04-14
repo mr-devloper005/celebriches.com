@@ -69,6 +69,12 @@ export function Footer() {
                 {task.label}
               </Link>
             ))}
+            <Link
+              href="/contact"
+              className="rounded-lg border border-[#d7deca] bg-white px-3 py-2 text-sm font-medium text-[#1f2617] hover:bg-[#ebefdf]"
+            >
+              Contact Us
+            </Link>
           </div>
         </div>
       </footer>
@@ -97,6 +103,12 @@ export function Footer() {
                   <ArrowRight className="h-4 w-4" />
                 </Link>
               ) : null}
+              <Link
+                href="/contact"
+                className="mt-3 inline-flex items-center gap-2 rounded-full bg-[#8df0c8] px-4 py-2.5 text-sm font-semibold text-[#07111f] hover:bg-[#77dfb8]"
+              >
+                Contact Us
+              </Link>
             </div>
             <div className="grid gap-6 sm:grid-cols-2 lg:col-span-2 lg:grid-cols-3">
               <div>
@@ -161,6 +173,12 @@ export function Footer() {
                   <li key={item.name}><Link href={item.href} className="text-foreground/90 transition-colors hover:text-primary">{item.name}</Link></li>
                 ))}
               </ul>
+              <Link
+                href="/contact"
+                className="mt-5 inline-flex rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-sm transition-colors hover:bg-primary/90"
+              >
+                Contact Us
+              </Link>
             </div>
           </div>
         </div>
@@ -183,6 +201,12 @@ export function Footer() {
               </div>
             </Link>
             <p className="mt-5 max-w-sm text-sm leading-7 text-slate-600">{SITE_CONFIG.description}</p>
+            <Link
+              href="/contact"
+              className="mt-5 inline-flex rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition-colors hover:bg-slate-50 hover:text-slate-950"
+            >
+              Contact Us
+            </Link>
           </div>
           {(['platform', 'company', 'resources', 'legal'] as const).map((section) => (
             <div key={section}>

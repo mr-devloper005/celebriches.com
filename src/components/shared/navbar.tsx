@@ -7,7 +7,24 @@ import { usePathname } from 'next/navigation'
 import { Search, Menu, X, User, FileText, Building2, LayoutGrid, Tag, Image as ImageIcon, ChevronRight, Sparkles, MapPin, Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useAuth } from '@/lib/auth-context'
-import { SITE_CONFIG, type TaskKey } from '@/lib/site-config'
+import { SITE_CONFIG, type TaskConfig, type TaskKey } from '@/lib/site-config'
+
+function normalizePath(path: string) {
+  if (path.length > 1 && path.endsWith('/')) return path.slice(0, -1)
+  return path
+}
+
+/** True when this task's hub, detail, or create flow matches the URL (prefix-safe). */
+function isTaskNavActive(pathname: string, task: TaskConfig) {
+  const path = normalizePath(pathname)
+  const base = normalizePath(task.route)
+  if (path === base || path.startsWith(`${base}/`)) return true
+   const createBase = `/create/${task.key}`
+  if (path === createBase || path.startsWith(`${createBase}/`)) return true
+  const localBase = `/local/${task.key}`
+  if (path === localBase || path.startsWith(`${localBase}/`)) return true
+  return false
+}
 import { cn } from '@/lib/utils'
 import { siteContent } from '@/config/site.content'
 import { getFactoryState } from '@/design/factory/get-factory-state'
@@ -92,9 +109,10 @@ export function Navbar() {
   const { isAuthenticated } = useAuth()
   const { recipe } = getFactoryState()
 
-  const navigation = useMemo(() => SITE_CONFIG.tasks.filter((task) => task.enabled && task.key !== 'profile'), [])
+  const navigation = useMemo(() => SITE_CONFIG.tasks.filter((task) => task.enabled), [])
   const primaryNavigation = navigation.slice(0, 5)
   const mobileNavigation = navigation.map((task) => ({
+    task,
     name: task.label,
     href: task.route,
     icon: taskIcons[task.key] || LayoutGrid,
@@ -119,11 +137,18 @@ export function Navbar() {
               </div>
             </Link>
 
-            <div className="hidden items-center gap-5 xl:flex">
+                       <div className="hidden items-center gap-5 xl:flex">
               {primaryNavigation.slice(0, 4).map((task) => {
-                const isActive = pathname.startsWith(task.route)
+                const isActive = isTaskNavActive(pathname, task)
                 return (
-                  <Link key={task.key} href={task.route} className={cn('text-sm font-semibold transition-colors', isActive ? 'text-foreground' : palette.nav)}>
+                  <Link
+                    key={task.key}
+                    href={task.route}
+                    className={cn(
+                      'text-sm font-semibold transition-colors',
+                      isActive ? 'rounded-full px-3 py-1.5 text-foreground ring-2 ring-foreground/15' : palette.nav,
+                    )}
+                  >
                     {task.label}
                   </Link>
                 )
@@ -180,9 +205,9 @@ export function Navbar() {
                 Find businesses, spaces, and services
               </div>
               {mobileNavigation.map((item) => {
-                const isActive = pathname.startsWith(item.href)
+                const isActive = isTaskNavActive(pathname, item.task)
                 return (
-                  <Link key={item.name} href={item.href} onClick={() => setIsMobileMenuOpen(false)} className={cn('flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold transition-colors', isActive ? 'bg-foreground text-background' : palette.post)}>
+                  <Link key={item.task.key} href={item.href} onClick={() => setIsMobileMenuOpen(false)} className={cn('flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold transition-colors', isActive ? 'bg-foreground text-background' : palette.post)}>
                     <item.icon className="h-5 w-5" />
                     {item.name}
                   </Link>
@@ -217,21 +242,27 @@ export function Navbar() {
           {isEditorial ? (
             <div className="hidden min-w-0 flex-1 items-center gap-4 xl:flex">
               <div className="h-px flex-1 bg-border" />
-              {primaryNavigation.map((task) => {
-                const isActive = pathname.startsWith(task.route)
-                return (
-                  <Link key={task.key} href={task.route} className={cn('text-sm font-semibold uppercase tracking-[0.18em] transition-colors', isActive ? 'text-foreground' : 'text-muted-foreground hover:text-foreground')}>
-                    {task.label}
-                  </Link>
-                )
-              })}
+              <div className="flex flex-wrap items-center justify-center gap-x-10 gap-y-2">
+                {primaryNavigation.map((task) => {
+                  const isActive = isTaskNavActive(pathname, task)
+                  return (
+                    <Link
+                      key={task.key}
+                      href={task.route}
+                      className={cn('rounded-full px-4 py-1.5 text-sm font-semibold uppercase tracking-[0.18em] transition-colors', isActive ? style.active : style.idle)}
+                    >
+                      {task.label}
+                    </Link>
+                  )
+                })}
+              </div>
               <div className="h-px flex-1 bg-border" />
             </div>
           ) : isFloating ? (
             <div className="hidden min-w-0 flex-1 items-center gap-2 xl:flex">
               {primaryNavigation.map((task) => {
                 const Icon = taskIcons[task.key] || LayoutGrid
-                const isActive = pathname.startsWith(task.route)
+                const isActive = isTaskNavActive(pathname, task)
                 return (
                   <Link key={task.key} href={task.route} className={cn('flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition-colors', isActive ? style.active : style.idle)}>
                     <Icon className="h-4 w-4" />
@@ -243,7 +274,7 @@ export function Navbar() {
           ) : isUtility ? (
             <div className="hidden min-w-0 flex-1 items-center gap-2 xl:flex">
               {primaryNavigation.map((task) => {
-                const isActive = pathname.startsWith(task.route)
+                const isActive = isTaskNavActive(pathname, task)
                 return (
                   <Link key={task.key} href={task.route} className={cn('rounded-lg px-3 py-2 text-sm font-semibold transition-colors', isActive ? style.active : style.idle)}>
                     {task.label}
@@ -255,7 +286,7 @@ export function Navbar() {
             <div className="hidden min-w-0 flex-1 items-center gap-1 overflow-hidden xl:flex">
               {primaryNavigation.map((task) => {
                 const Icon = taskIcons[task.key] || LayoutGrid
-                const isActive = pathname.startsWith(task.route)
+                const isActive = isTaskNavActive(pathname, task)
                 return (
                   <Link key={task.key} href={task.route} className={cn('flex items-center gap-2 rounded-full px-3 py-2 text-sm font-semibold transition-colors whitespace-nowrap', isActive ? style.active : style.idle)}>
                     <Icon className="h-4 w-4" />
@@ -319,9 +350,9 @@ export function Navbar() {
               Search the site
             </Link>
             {mobileNavigation.map((item) => {
-              const isActive = pathname.startsWith(item.href)
+              const isActive = isTaskNavActive(pathname, item.task)
               return (
-                <Link key={item.name} href={item.href} onClick={() => setIsMobileMenuOpen(false)} className={cn('flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold transition-colors', isActive ? style.active : style.idle)}>
+                <Link key={item.task.key} href={item.href} onClick={() => setIsMobileMenuOpen(false)} className={cn('flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold transition-colors', isActive ? style.active : style.idle)}>
                   <item.icon className="h-5 w-5" />
                   {item.name}
                 </Link>
