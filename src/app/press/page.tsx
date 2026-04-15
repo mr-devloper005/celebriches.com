@@ -24,16 +24,17 @@ export default function PressPage() {
   return (
     <PageShell
       title="Press"
-      description="Media resources, brand assets, and press coverage."
+      description="Media resources, brand assets, leadership notes, and recent coverage."
     >
-      <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+      <div className="space-y-8">
         <Card className="border-border bg-card">
-          <CardContent className="p-6 space-y-3">
-            <h2 className="text-lg font-semibold text-foreground">Press Kit</h2>
-            <p className="text-sm text-muted-foreground">
-              Download logos, product screenshots, and brand guidelines for media use.
+          <CardContent className="p-6">
+            <Badge variant="secondary">Newsroom</Badge>
+            <h2 className="mt-3 text-2xl font-semibold tracking-[-0.02em] text-foreground">Brand assets and verified media material</h2>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Everything here is approved for editorial use. If you need custom media support, contact the communications team.
             </p>
-            <div className="grid gap-2">
+            <div className="mt-5 grid gap-2">
               {mockPressAssets.map((asset) => (
                 <div key={asset.id} className="rounded-lg border border-border bg-secondary/40 px-4 py-3">
                   <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
@@ -64,16 +65,34 @@ export default function PressPage() {
             </div>
           </CardContent>
         </Card>
-        <div className="space-y-4">
-          {mockPressCoverage.map((item) => (
-            <Card key={item.id} className="border-border bg-card transition-transform hover:-translate-y-1">
-              <CardContent className="p-6">
-                <div className="text-xs uppercase tracking-wide text-muted-foreground">{item.outlet}</div>
-                <p className="mt-2 text-sm text-foreground">{item.headline}</p>
-                <p className="mt-2 text-xs text-muted-foreground">{item.date}</p>
-              </CardContent>
-            </Card>
-          ))}
+
+        <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+          <Card className="border-border bg-card">
+            <CardContent className="p-6">
+              <h3 className="text-lg font-semibold text-foreground">Recent coverage</h3>
+              <div className="mt-4 space-y-4">
+                {mockPressCoverage.map((item) => (
+                  <div key={item.id} className="rounded-lg border border-border bg-muted/40 p-4">
+                    <div className="text-xs uppercase tracking-wide text-muted-foreground">{item.outlet}</div>
+                    <p className="mt-2 text-sm font-medium text-foreground">{item.headline}</p>
+                    <p className="mt-2 text-xs text-muted-foreground">{item.date}</p>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="border-border bg-card">
+            <CardContent className="p-6">
+              <h3 className="text-lg font-semibold text-foreground">Media contact</h3>
+              <p className="mt-2 text-sm leading-7 text-muted-foreground">
+                For interview requests, brand partnerships, or data-backed stories, reach out to our communications desk.
+              </p>
+              <div className="mt-4 rounded-lg border border-border bg-muted/40 p-4">
+                <p className="text-sm font-semibold text-foreground">press@celebriches.com</p>
+                <p className="mt-1 text-xs uppercase tracking-[0.16em] text-muted-foreground">Response time: within 24 hours</p>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
 

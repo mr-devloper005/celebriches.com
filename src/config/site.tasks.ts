@@ -33,7 +33,7 @@ export const siteTaskDefinitions = [
   },
   {
     key: 'profile',
-    label: 'Profiles',
+    label: 'Profile',
     route: '/profile',
     description: 'Creator and business profiles.',
     contentType: 'profile',
