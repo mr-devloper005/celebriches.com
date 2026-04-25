@@ -79,6 +79,7 @@ export default async function ProfileDetailPage({ params }: { params: Promise<{ 
     post.summary ||
     "Profile details will appear here once available.";
   const descriptionHtml = formatRichHtml(description);
+  const initialLetter = (brandName || post.title).slice(0, 1).toUpperCase();
   const suggestedArticles = await fetchTaskPosts("article", 6);
   const baseUrl = SITE_CONFIG.baseUrl.replace(/\/$/, "");
   const breadcrumbData = {
@@ -111,37 +112,52 @@ export default async function ProfileDetailPage({ params }: { params: Promise<{ 
       <NavbarShell />
       <main className="mx-auto w-full max-w-6xl px-4 pb-16 pt-10 sm:px-6 lg:px-8">
         <SchemaJsonLd data={breadcrumbData} />
-        <section className="rounded-3xl border border-border/60 bg-white/90 p-8 shadow-sm md:p-12">
-          <div className="grid gap-8 md:grid-cols-[200px_1fr] md:items-start">
-            <div className="flex justify-center md:justify-start">
-              <div className="relative h-36 w-36 overflow-hidden rounded-full border border-border/70 bg-muted">
-                {logoUrl ? (
-                  <ContentImage src={logoUrl} alt={post.title} fill className="object-cover" sizes="144px" intrinsicWidth={144} intrinsicHeight={144} />
-                ) : (
-                  <div className="flex h-full w-full items-center justify-center text-3xl font-semibold text-muted-foreground">
-                    {post.title.slice(0, 1).toUpperCase()}
-                  </div>
-                )}
+        <section className="relative overflow-hidden rounded-[2rem] border border-border/60 bg-white shadow-sm">
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-36 bg-gradient-to-r from-emerald-100 via-cyan-50 to-lime-100" />
+          <div className="relative grid gap-8 p-6 sm:p-8 lg:grid-cols-[260px_1fr] lg:gap-10 lg:p-10">
+            <aside className="space-y-4 rounded-2xl border border-border/70 bg-background/90 p-5 shadow-sm backdrop-blur">
+              <div className="mx-auto flex w-full max-w-[180px] justify-center lg:mx-0">
+                <div className="relative h-40 w-40 overflow-hidden rounded-full border border-border/80 bg-muted shadow-sm">
+                  {logoUrl ? (
+                    <ContentImage src={logoUrl} alt={post.title} fill className="object-cover" sizes="160px" intrinsicWidth={160} intrinsicHeight={160} />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center text-4xl font-semibold text-muted-foreground">
+                      {initialLetter}
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
-            <div>
-              <h1 className="text-3xl font-bold text-foreground sm:text-4xl">{brandName}</h1>
-              {domain ? (
-                <p className="mt-1 text-sm font-medium text-muted-foreground">{domain}</p>
+
+              <div className="space-y-2">
+                <p className="inline-flex rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-emerald-800">
+                  Profile
+                </p>
+                {domain ? (
+                  <p className="truncate text-sm font-medium text-muted-foreground">{domain}</p>
+                ) : null}
+              </div>
+
+              {website ? (
+                <Button asChild size="lg" className="w-full text-base">
+                  <Link href={website} target="_blank" rel="noopener noreferrer">
+                    Visit Official Site
+                  </Link>
+                </Button>
               ) : null}
+            </aside>
+
+            <div className="space-y-6">
+              <header className="rounded-2xl border border-border/60 bg-white/70 p-5 sm:p-6">
+                <h1 className="text-3xl font-bold text-foreground sm:text-4xl">{brandName}</h1>
+                {domain ? (
+                  <p className="mt-2 text-sm font-medium text-muted-foreground">{domain}</p>
+                ) : null}
+              </header>
+
               <article
-                className="article-content prose prose-slate mt-6 max-w-2xl text-base leading-relaxed prose-p:my-4 prose-a:text-primary prose-a:underline prose-strong:font-semibold"
+                className="article-content prose prose-slate max-w-none rounded-2xl border border-border/60 bg-white/70 p-5 text-base leading-relaxed prose-p:my-4 prose-a:text-primary prose-a:underline prose-strong:font-semibold sm:p-6"
                 dangerouslySetInnerHTML={{ __html: descriptionHtml }}
               />
-              {website ? (
-                <div className="mt-8">
-                  <Button asChild size="lg" className="px-7 text-base">
-                    <Link href={website} target="_blank" rel="noopener noreferrer">
-                      Visit Official Site
-                    </Link>
-                  </Button>
-                </div>
-              ) : null}
             </div>
           </div>
         </section>
