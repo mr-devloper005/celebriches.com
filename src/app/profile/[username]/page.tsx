@@ -5,11 +5,13 @@ import { NavbarShell } from "@/components/shared/navbar-shell";
 import { ContentImage } from "@/components/shared/content-image";
 import { TaskPostCard } from "@/components/shared/task-post-card";
 import { Button } from "@/components/ui/button";
+import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
 import { SchemaJsonLd } from "@/components/seo/schema-jsonld";
 import { buildPostUrl } from "@/lib/task-data";
 import { buildPostMetadata, buildTaskMetadata } from "@/lib/seo";
 import { fetchTaskPostBySlug, fetchTaskPosts } from "@/lib/task-data";
 import { SITE_CONFIG } from "@/lib/site-config";
+import { ProfileTabs } from "@/components/profile/profile-tabs";
 
 export const revalidate = 3;
 
@@ -110,98 +112,120 @@ export default async function ProfileDetailPage({ params }: { params: Promise<{ 
   return (
     <div className="min-h-screen bg-background">
       <NavbarShell />
-      <main className="mx-auto w-full max-w-6xl px-4 pb-16 pt-10 sm:px-6 lg:px-8">
+      <main className="mx-auto w-full max-w-7xl px-4 pb-16 pt-10 sm:px-6 lg:px-8">
         <SchemaJsonLd data={breadcrumbData} />
-        <section className="relative overflow-hidden rounded-[2rem] border border-border/60 bg-white shadow-sm">
-          <div className="pointer-events-none absolute inset-x-0 top-0 h-36 bg-gradient-to-r from-emerald-100 via-cyan-50 to-lime-100" />
-          <div className="relative grid gap-8 p-6 sm:p-8 lg:grid-cols-[260px_1fr] lg:gap-10 lg:p-10">
-            <aside className="space-y-4 rounded-2xl border border-border/70 bg-background/90 p-5 shadow-sm backdrop-blur">
-              <div className="mx-auto flex w-full max-w-[180px] justify-center lg:mx-0">
-                <div className="relative h-40 w-40 overflow-hidden rounded-full border border-border/80 bg-muted shadow-sm">
-                  {logoUrl ? (
-                    <ContentImage src={logoUrl} alt={post.title} fill className="object-cover" sizes="160px" intrinsicWidth={160} intrinsicHeight={160} />
-                  ) : (
-                    <div className="flex h-full w-full items-center justify-center text-4xl font-semibold text-muted-foreground">
-                      {initialLetter}
+        
+        {/* Profile Header Card */}
+        <Card className="mb-6">
+          <CardContent className="p-0">
+            <div className="relative h-32 bg-gradient-to-r from-emerald-100 via-cyan-50 to-lime-100" />
+            <div className="relative px-6 pb-6 pt-0 sm:px-8">
+              <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:gap-8">
+                {/* Avatar */}
+                <div className="relative -mt-16 inline-block">
+                  <div className="relative h-32 w-32 overflow-hidden rounded-full border-4 border-background bg-muted shadow-lg">
+                    {logoUrl ? (
+                      <ContentImage src={logoUrl} alt={post.title} fill className="object-cover" sizes="128px" intrinsicWidth={128} intrinsicHeight={128} />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center text-3xl font-semibold text-muted-foreground">
+                        {initialLetter}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* User Info */}
+                <div className="flex-1 space-y-4">
+                  <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                      <h1 className="text-2xl font-bold text-foreground sm:text-3xl">{brandName}</h1>
+                      {domain && (
+                        <p className="mt-1 text-sm text-muted-foreground">{domain}</p>
+                      )}
                     </div>
-                  )}
+                    {website && (
+                      <Button asChild size="sm">
+                        <Link href={website} target="_blank" rel="noopener noreferrer">
+                          Visit Website
+                        </Link>
+                      </Button>
+                    )}
+                  </div>
+
                 </div>
               </div>
-
-              <div className="space-y-2">
-                <p className="inline-flex rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-emerald-800">
-                  Profile
-                </p>
-                {domain ? (
-                  <p className="truncate text-sm font-medium text-muted-foreground">{domain}</p>
-                ) : null}
-              </div>
-
-              {website ? (
-                <Button asChild size="lg" className="w-full text-base">
-                  <Link href={website} target="_blank" rel="noopener noreferrer">
-                    Visit Official Site
-                  </Link>
-                </Button>
-              ) : null}
-            </aside>
-
-            <div className="space-y-6">
-              <header className="rounded-2xl border border-border/60 bg-white/70 p-5 sm:p-6">
-                <h1 className="text-3xl font-bold text-foreground sm:text-4xl">{brandName}</h1>
-                {domain ? (
-                  <p className="mt-2 text-sm font-medium text-muted-foreground">{domain}</p>
-                ) : null}
-              </header>
-
-              <article
-                className="article-content prose prose-slate max-w-none rounded-2xl border border-border/60 bg-white/70 p-5 text-base leading-relaxed prose-p:my-4 prose-a:text-primary prose-a:underline prose-strong:font-semibold sm:p-6"
-                dangerouslySetInnerHTML={{ __html: descriptionHtml }}
-              />
             </div>
+          </CardContent>
+        </Card>
+
+        {/* Main Content Grid */}
+        <div className="grid gap-6 lg:grid-cols-[1fr_300px]">
+          {/* Left Column - Tabs and Content */}
+          <div className="space-y-6">
+            <ProfileTabs 
+              descriptionHtml={descriptionHtml}
+              brandName={brandName}
+              domain={domain}
+              website={website}
+              post={post}
+            />
+
+            {/* Suggested Articles */}
+            {suggestedArticles.length ? (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Suggested Articles</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    {suggestedArticles.slice(0, 4).map((article) => (
+                      <TaskPostCard
+                        key={article.id}
+                        post={article}
+                        href={buildPostUrl("article", article.slug)}
+                        compact
+                      />
+                    ))}
+                  </div>
+                  <div className="mt-4">
+                    <Link href="/articles" className="text-sm font-medium text-primary hover:underline">
+                      View all articles →
+                    </Link>
+                  </div>
+                </CardContent>
+              </Card>
+            ) : null}
           </div>
-        </section>
 
-        {suggestedArticles.length ? (
-          <section className="mt-12">
-            <div className="flex items-center justify-between">
-              <h2 className="text-xl font-semibold text-foreground">Suggested articles</h2>
-              <Link href="/articles" className="text-sm font-medium text-primary hover:underline">
-                View all
-              </Link>
-            </div>
-            <div className="mt-6 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {suggestedArticles.slice(0, 3).map((article) => (
-                <TaskPostCard
-                  key={article.id}
-                  post={article}
-                  href={buildPostUrl("article", article.slug)}
-                  compact
-                />
-              ))}
-            </div>
-            <nav className="mt-6 rounded-2xl border border-border bg-card/60 p-4">
-              <p className="text-sm font-semibold text-foreground">Related links</p>
-              <ul className="mt-2 space-y-2 text-sm">
-                {suggestedArticles.slice(0, 3).map((article) => (
-                  <li key={`related-${article.id}`}>
-                    <Link
-                      href={buildPostUrl("article", article.slug)}
-                      className="text-primary underline-offset-4 hover:underline"
-                    >
-                      {article.title}
+          {/* Right Column - Sidebar */}
+          <div className="space-y-6">
+            {/* Quick Links */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Quick Links</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-2 text-sm">
+                  <li>
+                    <Link href="/profile" className="text-primary hover:underline">
+                      Browse all profiles
                     </Link>
                   </li>
-                ))}
-                <li>
-                  <Link href="/profile" className="text-primary underline-offset-4 hover:underline">
-                    Browse all profiles
-                  </Link>
-                </li>
-              </ul>
-            </nav>
-          </section>
-        ) : null}
+                  {suggestedArticles.slice(0, 3).map((article) => (
+                    <li key={`quick-${article.id}`}>
+                      <Link
+                        href={buildPostUrl("article", article.slug)}
+                        className="text-primary hover:underline"
+                      >
+                        {article.title}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
       </main>
       <Footer />
     </div>
