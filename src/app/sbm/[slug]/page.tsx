@@ -1,4 +1,4 @@
-import { TaskDetailPage } from "@/components/tasks/task-detail-page";
+import { SbmDetailPage } from "@/components/sbm/sbm-detail-page";
 import { buildPostMetadata, buildTaskMetadata } from "@/lib/seo";
 import { fetchTaskPostBySlug, fetchTaskPosts } from "@/lib/task-data";
 
@@ -20,5 +20,5 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function BookmarkDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const resolvedParams = await params;
-  return <TaskDetailPage task="sbm" slug={resolvedParams.slug} />;
+  return <SbmDetailPage task="sbm" slug={resolvedParams.slug} />;
 }
