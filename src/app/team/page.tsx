@@ -27,16 +27,6 @@ export default function TeamPage() {
     <PageShell
       title="Team"
       description={`Meet the people shaping ${SITE_CONFIG.name} across product, design, editorial, and community.`}
-      actions={
-        <>
-          <Button variant="outline" asChild>
-            <Link href="/careers">Open roles</Link>
-          </Button>
-          <Button asChild>
-            <Link href="/contact">Talk to us</Link>
-          </Button>
-        </>
-      }
     >
       <div className="space-y-8">
         <div className="grid gap-6 lg:grid-cols-3">
@@ -80,9 +70,6 @@ export default function TeamPage() {
                 We are hiring builders who care about craftsmanship, clarity, and community impact.
               </p>
             </div>
-            <Button asChild>
-              <Link href="/careers">See open positions</Link>
-            </Button>
           </CardContent>
         </Card>
       </div>

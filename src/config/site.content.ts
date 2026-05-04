@@ -179,16 +179,15 @@ export const taskIntroCopy: Record<
     ],
   },
   sbm: {
-    title: 'Curated links and bookmarked resources',
+    title: 'Curated bookmarks and saved resources',
     paragraphs: [
-      'This section collects useful links, references, tools, and saved resources in a text-first browsing format.',
-      'Bookmarks stay connected to the rest of the platform, making it easier to move from a saved link into related stories, listings, or resources.',
-      'Use this section to organize helpful sources and discover connected content without leaving the broader site experience.',
+      'This section organizes useful links, tools, and references you have saved for quick access.',
+      'Build your personal collection of valuable resources and revisit them anytime through a clean, text-first browsing format.',
+      'Use this space to curate helpful sources and create your own library of discoverable content.',
     ],
     links: [
-      { label: 'Browse articles', href: '/articles' },
-      { label: 'Explore listings', href: '/listings' },
-      { label: 'Open PDFs', href: '/pdf' },
+      { label: 'View all collections', href: '/sbm' },
+      { label: 'Create bookmark', href: '/create/sbm' },
     ],
   },
   pdf: {
