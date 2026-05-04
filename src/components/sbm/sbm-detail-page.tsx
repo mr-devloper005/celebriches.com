@@ -1,3 +1,5 @@
+'use client'
+
 import { ContentImage } from "@/components/shared/content-image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -11,7 +13,6 @@ import { Button } from "@/components/ui/button";
 import { buildPostUrl, fetchTaskPostBySlug, fetchTaskPosts } from "@/lib/task-data";
 import { SITE_CONFIG, getTaskConfig, type TaskKey } from "@/lib/site-config";
 import type { SitePost } from "@/lib/site-connector";
-import { TaskImageCarousel } from "@/components/tasks/task-image-carousel";
 import { cn } from "@/lib/utils";
 import { ArticleComments } from "@/components/tasks/article-comments";
 import { SchemaJsonLd } from "@/components/seo/schema-jsonld";
@@ -20,6 +21,7 @@ import { getFactoryState } from "@/design/factory/get-factory-state";
 import { getProductKind } from "@/design/factory/get-product-kind";
 import { DirectoryTaskDetailPage } from "@/design/products/directory/task-detail-page";
 import { useToast } from "@/components/ui/use-toast";
+import { useEffect, useState } from "react";
 
 type PostContent = {
   category?: string;
@@ -124,15 +126,41 @@ const buildMapEmbedUrl = (
   return null;
 };
 
-export async function TaskDetailPage({ task, slug }: { task: TaskKey; slug: string }) {
-  const taskConfig = getTaskConfig(task);
+export function SbmDetailPage({ task, slug }: { task: TaskKey; slug: string }) {
   const router = useRouter();
   const { toast } = useToast();
-  let post: SitePost | null = null;
-  try {
-    post = await fetchTaskPostBySlug(task, slug);
-  } catch (error) {
-    console.warn("Failed to load post detail", error);
+  const [post, setPost] = useState<SitePost | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadPost = async () => {
+      try {
+        const fetchedPost = await fetchTaskPostBySlug(task, slug);
+        setPost(fetchedPost);
+      } catch (error) {
+        console.warn("Failed to load post detail", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadPost();
+  }, [task, slug]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <NavbarShell />
+        <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+          <div className="animate-pulse">
+            <div className="h-8 w-32 bg-muted rounded mb-6"></div>
+            <div className="h-12 w-3/4 bg-muted rounded mb-4"></div>
+            <div className="h-4 w-1/2 bg-muted rounded"></div>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
   }
 
   if (!post) {
@@ -142,7 +170,7 @@ export async function TaskDetailPage({ task, slug }: { task: TaskKey; slug: stri
   const content = getContent(post);
   const isClassified = task === "classified";
   const isArticle = task === "article";
-  const category = content.category || post.tags?.[0] || taskConfig?.label || task;
+  const category = content.category || post.tags?.[0] || task;
   const description = content.description || post.summary || "Details coming soon.";
   const descriptionHtml = !isArticle ? formatRichHtml(description, "Details coming soon.") : "";
   const articleHtml = isArticle ? formatArticleHtml(content, post) : "";
@@ -173,15 +201,8 @@ export async function TaskDetailPage({ task, slug }: { task: TaskKey; slug: stri
   const bookmarkVisual = isValidImageUrl(content.logo) ? content.logo : images[0];
   const bookmarkInitial = post.title.slice(0, 1).toUpperCase();
   const hideSidebar = isClassified || isArticle || task === "image" || isBookmark;
-  const related = (await fetchTaskPosts(task, 6))
-    .filter((item) => item.slug !== post.slug)
-    .filter((item) => {
-      if (!content.category) return true;
-      const itemContent = getContent(item);
-      return itemContent.category === content.category;
-    })
-    .slice(0, 3);
-  const articleUrl = `${SITE_CONFIG.baseUrl.replace(/\/$/, "")}${taskConfig?.route || "/articles"}/${post.slug}`;
+  const related = [] // Will be loaded separately if needed
+  const articleUrl = `${SITE_CONFIG.baseUrl.replace(/\/$/, "")}/sbm/${post.slug}`;
   const articleImage = absoluteUrl(images[0]) || absoluteUrl(SITE_CONFIG.defaultOgImage);
   const articleSchema = isArticle
     ? {
@@ -217,40 +238,18 @@ export async function TaskDetailPage({ task, slug }: { task: TaskKey; slug: stri
       {
         "@type": "ListItem",
         position: 2,
-        name: taskConfig?.label || "Posts",
-        item: `${SITE_CONFIG.baseUrl.replace(/\/$/, "")}${taskConfig?.route || "/"}`,
+        name: "Social Bookmarking",
+        item: `${SITE_CONFIG.baseUrl.replace(/\/$/, "")}/sbm`,
       },
       {
         "@type": "ListItem",
         position: 3,
         name: post.title,
-        item: `${SITE_CONFIG.baseUrl.replace(/\/$/, "")}${taskConfig?.route || "/posts"}/${post.slug}`,
+        item: `${SITE_CONFIG.baseUrl.replace(/\/$/, "")}/sbm/${post.slug}`,
       },
     ],
   };
   const schemaPayload = articleSchema ? [articleSchema, breadcrumbSchema] : breadcrumbSchema;
-  const { recipe } = getFactoryState();
-  const productKind = getProductKind(recipe);
-
-  if (productKind === "directory" && (task === "listing" || task === "classified" || task === "profile")) {
-    return (
-      <div className="min-h-screen bg-[#f8fbff]">
-        <NavbarShell />
-        <DirectoryTaskDetailPage
-          task={task}
-          taskLabel={taskConfig?.label || task}
-          taskRoute={taskConfig?.route || "/"}
-          post={post}
-          description={description}
-          category={category}
-          images={images}
-          mapEmbedUrl={mapEmbedUrl}
-          related={related}
-        />
-        <Footer />
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -258,18 +257,13 @@ export async function TaskDetailPage({ task, slug }: { task: TaskKey; slug: stri
       <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
         <SchemaJsonLd data={schemaPayload} />
         <Link
-          href={taskConfig?.route || "/"}
+          href="/sbm"
           className="mb-6 inline-flex items-center text-sm text-muted-foreground hover:text-foreground"
         >
-          ← Back to {taskConfig?.label || "posts"}
+          ← Back to Social Bookmarking
         </Link>
 
-        <div
-          className={cn(
-            "grid gap-10",
-            hideSidebar ? "lg:grid-cols-1" : "lg:grid-cols-[2fr_1fr]"
-          )}
-        >
+        <div className="grid gap-10 lg:grid-cols-1">
           <div className={cn(isClassified ? "space-y-8" : "")}>
             {isArticle ? (
               <div className="mx-auto w-full max-w-4xl space-y-6">
@@ -315,12 +309,6 @@ export async function TaskDetailPage({ task, slug }: { task: TaskKey; slug: stri
 
             {!isArticle ? (
               <>
-                {!isBookmark ? (
-                  <div className={cn(isClassified ? "w-full" : "")}>
-                    <TaskImageCarousel images={images} />
-                  </div>
-                ) : null}
-
                 {isBookmark ? (
                   <section className="relative overflow-hidden rounded-[2rem] border border-border/60 bg-white shadow-sm">
                     <div className="pointer-events-none absolute inset-x-0 top-0 h-36 bg-gradient-to-r from-sky-100 via-cyan-50 to-emerald-100" />
@@ -364,16 +352,9 @@ export async function TaskDetailPage({ task, slug }: { task: TaskKey; slug: stri
                             onClick={async () => {
                               try {
                                 await navigator.clipboard.writeText(window.location.href);
-                                toast({
-                                  title: "Link copied",
-                                  description: "The page URL has been copied to your clipboard.",
-                                });
+                                alert("URL copied");
                               } catch {
-                                toast({
-                                  title: "Copy failed",
-                                  description: "Failed to copy the URL.",
-                                  variant: "destructive",
-                                });
+                                alert("Failed to copy URL");
                               }
                             }}
                           >
@@ -486,126 +467,20 @@ export async function TaskDetailPage({ task, slug }: { task: TaskKey; slug: stri
             ) : null}
 
           </div>
-
-          {!hideSidebar ? (
-            <aside className="space-y-6">
-            <div className="rounded-2xl border border-border bg-card p-6">
-              <h2 className="text-lg font-semibold text-foreground">Listing details</h2>
-                <div className="mt-4 space-y-3 text-sm text-muted-foreground">
-                  {content.website && (
-                    <div className="flex items-start gap-2">
-                      <Globe className="mt-0.5 h-4 w-4" />
-                      <a
-                        href={content.website}
-                        className="break-all text-foreground hover:underline"
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-                        {content.website}
-                      </a>
-                    </div>
-                  )}
-                  {content.phone && (
-                    <div className="flex items-start gap-2">
-                      <Phone className="mt-0.5 h-4 w-4" />
-                      <span>{content.phone}</span>
-                    </div>
-                  )}
-                  {content.email && (
-                    <div className="flex items-start gap-2">
-                      <Mail className="mt-0.5 h-4 w-4" />
-                      <a
-                        href={`mailto:${content.email}`}
-                        className="break-all text-foreground hover:underline"
-                      >
-                        {content.email}
-                      </a>
-                    </div>
-                  )}
-                  {location && (
-                    <div className="flex items-start gap-2">
-                      <MapPin className="mt-0.5 h-4 w-4" />
-                      <span>{location}</span>
-                    </div>
-                  )}
-                </div>
-              {content.website ? (
-                <Button className="mt-5 w-full" asChild>
-                  <a href={content.website} target="_blank" rel="noreferrer">
-                    Visit Website
-                  </a>
-                </Button>
-              ) : null}
-            </div>
-
-            {mapEmbedUrl ? (
-              <div className="rounded-2xl border border-border bg-card p-4">
-                <p className="text-sm font-semibold text-foreground">Location map</p>
-                <div className="mt-4 overflow-hidden rounded-xl border border-border">
-                  <iframe
-                    title="Business location map"
-                    src={mapEmbedUrl}
-                    className="h-56 w-full"
-                    loading="lazy"
-                  />
-                </div>
-              </div>
-            ) : null}
-
-          </aside>
-          ) : null}
         </div>
 
         <section className="mt-12">
-          {related.length ? (
-            <>
-            <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-xl font-semibold text-foreground">
-                More in {category}
-              </h2>
-              {taskConfig?.route && (
-                <Link
-                  href={taskConfig.route}
-                  className="text-sm text-muted-foreground hover:text-foreground"
-                >
-                  View all
-                </Link>
-              )}
-            </div>
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {related.map((item) => (
-                <TaskPostCard
-                  key={item.id}
-                  post={item}
-                  href={buildPostUrl(task, item.slug)}
-                />
-              ))}
-            </div>
-            </>
-          ) : null}
           <nav className="mt-6 rounded-2xl border border-border bg-card/60 p-4">
             <p className="text-sm font-semibold text-foreground">Related links</p>
             <ul className="mt-2 space-y-2 text-sm">
-              {related.map((item) => (
-                <li key={`link-${item.id}`}>
-                  <Link
-                    href={buildPostUrl(task, item.slug)}
-                    className="text-primary underline-offset-4 hover:underline"
-                  >
-                    {item.title}
-                  </Link>
-                </li>
-              ))}
-              {taskConfig?.route ? (
-                <li>
-                  <Link
-                    href={taskConfig.route}
-                    className="text-primary underline-offset-4 hover:underline"
-                  >
-                    Browse all {taskConfig.label}
-                  </Link>
-                </li>
-              ) : null}
+              <li>
+                <Link
+                  href="/sbm"
+                  className="text-primary underline-offset-4 hover:underline"
+                >
+                  Browse all Social Bookmarking
+                </Link>
+              </li>
             </ul>
           </nav>
         </section>
