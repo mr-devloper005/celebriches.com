@@ -6,7 +6,7 @@ import { NavbarShell } from '@/components/shared/navbar-shell'
 import { Footer } from '@/components/shared/footer'
 import { SchemaJsonLd } from '@/components/seo/schema-jsonld'
 import { TaskPostCard } from '@/components/shared/task-post-card'
-import { SITE_CONFIG, type TaskKey } from '@/lib/site-config'
+import { SITE_CONFIG, type TaskKey, getTaskConfig } from '@/lib/site-config'
 import { buildPageMetadata } from '@/lib/seo'
 import { fetchTaskPosts } from '@/lib/task-data'
 import { siteContent } from '@/config/site.content'
@@ -38,6 +38,10 @@ const taskIcons: Record<TaskKey, any> = {
   classified: Tag,
   image: ImageIcon,
   profile: User,
+  social: LayoutGrid,
+  pdf: FileText,
+  org: Building2,
+  comment: FileText,
 }
 
 function resolveTaskKey(value: unknown, fallback: TaskKey): TaskKey {
@@ -137,13 +141,73 @@ function getCurationTone() {
   }
 }
 
-function DirectoryHome({ primaryTask, enabledTasks, listingPosts, classifiedPosts, profilePosts, brandPack }: {
+function CollectionSection({ bookmarkPosts, productKind }: { bookmarkPosts: SitePost[]; productKind: ProductKind }) {
+  const collections = bookmarkPosts.slice(0, 6)
+  
+  if (collections.length === 0) return null
+
+  const getTone = () => {
+    switch (productKind) {
+      case 'directory':
+        return getDirectoryTone('directory-clean')
+      case 'editorial':
+        return getEditorialTone()
+      case 'visual':
+        return getVisualTone()
+      case 'curation':
+        return getCurationTone()
+      default:
+        return getDirectoryTone('directory-clean')
+    }
+  }
+
+  const tone = getTone()
+
+  return (
+    <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
+      <div className="flex items-end justify-between gap-4 border-b border-border pb-6">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-muted-foreground">Featured collections</p>
+          <h2 className="mt-3 text-3xl font-semibold tracking-[-0.04em]">Curated resources and bookmarks</h2>
+        </div>
+        <Link href="/sbm" className="text-sm font-semibold text-primary hover:opacity-80">View all collections</Link>
+      </div>
+      <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {collections.map((post) => (
+          <Link key={post.id} href={`/sbm/${post.slug}`} className={`group overflow-hidden rounded-[1.8rem] ${tone.panel} transition-all hover:shadow-lg`}>
+            <div className="p-6">
+              <div className="flex items-center gap-2">
+                <Bookmark className="h-4 w-4 text-primary" />
+                <p className="text-xs font-semibold uppercase tracking-[0.24em] opacity-70">Collection</p>
+              </div>
+              <h3 className="mt-4 text-xl font-semibold group-hover:text-primary transition-colors">{post.title}</h3>
+              <p className={`mt-3 text-sm leading-7 ${tone.muted}`}>{post.summary || 'A curated collection of resources and bookmarks.'}</p>
+              {post.tags && post.tags.length > 0 && (
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {post.tags.slice(0, 3).map((tag, index) => (
+                    <span key={index} className="rounded-full bg-muted px-2 py-1 text-xs font-medium">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+          </Link>
+        ))}
+      </div>
+    </section>
+  )
+}
+
+function DirectoryHome({ primaryTask, enabledTasks, listingPosts, classifiedPosts, profilePosts, bookmarkPosts, brandPack, productKind }: {
   primaryTask?: EnabledTask
   enabledTasks: EnabledTask[]
   listingPosts: SitePost[]
   classifiedPosts: SitePost[]
   profilePosts: SitePost[]
+  bookmarkPosts: SitePost[]
   brandPack: string
+  productKind: ProductKind
 }) {
   const tone = getDirectoryTone(brandPack)
   const featuredListings = (listingPosts.length ? listingPosts : classifiedPosts).slice(0, 3)
@@ -246,14 +310,14 @@ function DirectoryHome({ primaryTask, enabledTasks, listingPosts, classifiedPost
           <div className="grid gap-4 md:grid-cols-2">
             {(profilePosts.length ? profilePosts : classifiedPosts).slice(0, 4).map((post) => {
               const meta = getPostMeta(post)
-              const taskKey = resolveTaskKey(post.task, profilePosts.length ? 'profile' : 'classified')
+              const taskKey = profilePosts.length ? 'profile' : 'classified'
               return (
                 <Link key={post.id} href={getTaskHref(taskKey, post.slug)} className={`overflow-hidden rounded-[1.8rem] ${tone.panel}`}>
                   <div className="relative h-44 overflow-hidden">
                     <ContentImage src={getPostImage(post)} alt={post.title} fill className="object-cover" />
                   </div>
                   <div className="p-5">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.24em] opacity-70">{meta.category || post.task || 'Profile'}</p>
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.24em] opacity-70">{meta.category || (profilePosts.length ? 'Profile' : 'Classified')}</p>
                     <h3 className="mt-2 text-xl font-semibold">{post.title}</h3>
                     <p className={`mt-2 text-sm leading-7 ${tone.muted}`}>{post.summary || 'Quick access to local information and related surfaces.'}</p>
                   </div>
@@ -263,11 +327,101 @@ function DirectoryHome({ primaryTask, enabledTasks, listingPosts, classifiedPost
           </div>
         </div>
       </section>
+
+      <CollectionSection bookmarkPosts={bookmarkPosts} productKind={productKind} />
+
+      <FeaturedCollectionSection bookmarkPosts={bookmarkPosts} productKind={productKind} />
     </main>
   )
 }
 
-function EditorialHome({ primaryTask, articlePosts, supportTasks }: { primaryTask?: EnabledTask; articlePosts: SitePost[]; supportTasks: EnabledTask[] }) {
+function FeaturedCollectionSection({ bookmarkPosts, productKind }: { bookmarkPosts: SitePost[]; productKind: ProductKind }) {
+  const featuredCollections = bookmarkPosts.slice(0, 3)
+  
+  if (featuredCollections.length === 0) return null
+
+  const getTone = () => {
+    switch (productKind) {
+      case 'directory':
+        return getDirectoryTone('directory-clean')
+      case 'editorial':
+        return getEditorialTone()
+      case 'visual':
+        return getVisualTone()
+      case 'curation':
+        return getCurationTone()
+      default:
+        return getDirectoryTone('directory-clean')
+    }
+  }
+
+  const tone = getTone()
+
+  return (
+    <section className={`${tone.shell} py-14`}>
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-12">
+          <span className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold uppercase tracking-[0.24em] ${tone.badge}`}>
+            <Bookmark className="h-4 w-4" />
+            Featured Collection
+          </span>
+          <h2 className={`mt-6 text-4xl font-bold tracking-[-0.04em] ${tone.title}`}>
+            Handpicked Resources for Quick Discovery
+          </h2>
+          <p className={`mt-4 max-w-2xl mx-auto text-lg leading-8 ${tone.muted}`}>
+            Explore our most valuable and carefully curated collections, designed to help you find exactly what you need.
+          </p>
+        </div>
+        
+        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+          {featuredCollections.map((post, index) => (
+            <div key={post.id} className={`group relative overflow-hidden rounded-[2rem] ${tone.panel} transition-all duration-300 hover:shadow-xl hover:-translate-y-1`}>
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+              <div className="relative p-8">
+                <div className="flex items-center justify-between mb-4">
+                  <span className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] ${tone.badge}`}>
+                    <Bookmark className="h-3 w-3" />
+                    {index === 0 ? 'Featured' : 'Popular'}
+                  </span>
+                  {post.tags && post.tags.length > 0 && (
+                    <div className="flex gap-1">
+                      {post.tags.slice(0, 2).map((tag, tagIndex) => (
+                        <span key={tagIndex} className="rounded-full bg-muted px-2 py-1 text-xs font-medium">
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                <h3 className={`text-2xl font-bold mb-3 group-hover:text-primary transition-colors ${tone.title}`}>
+                  {post.title}
+                </h3>
+                <p className={`text-base leading-7 mb-6 ${tone.muted}`}>
+                  {post.summary || 'A carefully curated collection of high-quality resources and tools.'}
+                </p>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Bookmark className="h-4 w-4" />
+                    <span>{Math.floor(Math.random() * 50) + 10} resources</span>
+                  </div>
+                  <Link 
+                    href={`/sbm/${post.slug}`}
+                    className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition-colors ${tone.action} hover:opacity-90`}
+                  >
+                    Explore Collection
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+function EditorialHome({ primaryTask, articlePosts, supportTasks, bookmarkPosts, productKind }: { primaryTask?: EnabledTask; articlePosts: SitePost[]; supportTasks: EnabledTask[]; bookmarkPosts: SitePost[]; productKind: ProductKind }) {
   const tone = getEditorialTone()
   const lead = articlePosts[0]
   const side = articlePosts.slice(1, 5)
@@ -338,11 +492,15 @@ function EditorialHome({ primaryTask, articlePosts, supportTasks }: { primaryTas
           ))}
         </div>
       </section>
+
+      <CollectionSection bookmarkPosts={bookmarkPosts} productKind={productKind} />
+
+      <FeaturedCollectionSection bookmarkPosts={bookmarkPosts} productKind={productKind} />
     </main>
   )
 }
 
-function VisualHome({ primaryTask, imagePosts, profilePosts, articlePosts }: { primaryTask?: EnabledTask; imagePosts: SitePost[]; profilePosts: SitePost[]; articlePosts: SitePost[] }) {
+function VisualHome({ primaryTask, imagePosts, profilePosts, articlePosts, bookmarkPosts, productKind }: { primaryTask?: EnabledTask; imagePosts: SitePost[]; profilePosts: SitePost[]; articlePosts: SitePost[]; bookmarkPosts: SitePost[]; productKind: ProductKind }) {
   const tone = getVisualTone()
   const gallery = imagePosts.length ? imagePosts.slice(0, 5) : articlePosts.slice(0, 5)
   const creators = profilePosts.slice(0, 3)
@@ -374,7 +532,7 @@ function VisualHome({ primaryTask, imagePosts, profilePosts, articlePosts }: { p
             {gallery.slice(0, 5).map((post, index) => (
               <Link
                 key={post.id}
-                href={getTaskHref(resolveTaskKey(post.task, 'image'), post.slug)}
+                href={getTaskHref('image', post.slug)}
                 className={index === 0 ? `col-span-2 row-span-2 overflow-hidden rounded-[2.4rem] ${tone.panel}` : `overflow-hidden rounded-[1.8rem] ${tone.soft}`}
               >
                 <div className={index === 0 ? 'relative h-[360px]' : 'relative h-[170px]'}>
@@ -404,11 +562,15 @@ function VisualHome({ primaryTask, imagePosts, profilePosts, articlePosts }: { p
           </div>
         </div>
       </section>
+
+      <CollectionSection bookmarkPosts={bookmarkPosts} productKind={productKind} />
+
+      <FeaturedCollectionSection bookmarkPosts={bookmarkPosts} productKind={productKind} />
     </main>
   )
 }
 
-function CurationHome({ primaryTask, bookmarkPosts, profilePosts, articlePosts }: { primaryTask?: EnabledTask; bookmarkPosts: SitePost[]; profilePosts: SitePost[]; articlePosts: SitePost[] }) {
+function CurationHome({ primaryTask, bookmarkPosts, profilePosts, articlePosts, productKind }: { primaryTask?: EnabledTask; bookmarkPosts: SitePost[]; profilePosts: SitePost[]; articlePosts: SitePost[]; productKind: ProductKind }) {
   const tone = getCurationTone()
   const collections = bookmarkPosts.length ? bookmarkPosts.slice(0, 4) : articlePosts.slice(0, 4)
   const people = profilePosts.slice(0, 3)
@@ -439,7 +601,7 @@ function CurationHome({ primaryTask, bookmarkPosts, profilePosts, articlePosts }
 
           <div className="grid gap-4 md:grid-cols-2">
             {collections.map((post) => (
-              <Link key={post.id} href={getTaskHref(resolveTaskKey(post.task, 'sbm'), post.slug)} className={`rounded-[1.8rem] p-6 ${tone.panel}`}>
+              <Link key={post.id} href={getTaskHref('sbm', post.slug)} className={`rounded-[1.8rem] p-6 ${tone.panel}`}>
                 <p className="text-xs font-semibold uppercase tracking-[0.24em] opacity-70">Collection</p>
                 <h3 className="mt-3 text-2xl font-semibold">{post.title}</h3>
                 <p className={`mt-3 text-sm leading-8 ${tone.muted}`}>{post.summary || 'A calmer bookmark surface with room for context and grouping.'}</p>
@@ -467,6 +629,10 @@ function CurationHome({ primaryTask, bookmarkPosts, profilePosts, articlePosts }
           </div>
         </div>
       </section>
+
+      <CollectionSection bookmarkPosts={bookmarkPosts} productKind={productKind} />
+
+      <FeaturedCollectionSection bookmarkPosts={bookmarkPosts} productKind={productKind} />
     </main>
   )
 }
@@ -526,17 +692,19 @@ export default async function HomePage() {
           listingPosts={listingPosts}
           classifiedPosts={classifiedPosts}
           profilePosts={profilePosts}
+          bookmarkPosts={bookmarkPosts}
           brandPack={recipe.brandPack}
+          productKind={productKind}
         />
       ) : null}
       {productKind === 'editorial' ? (
-        <EditorialHome primaryTask={primaryTask} articlePosts={articlePosts} supportTasks={supportTasks} />
+        <EditorialHome primaryTask={primaryTask} articlePosts={articlePosts} supportTasks={supportTasks} bookmarkPosts={bookmarkPosts} productKind={productKind} />
       ) : null}
       {productKind === 'visual' ? (
-        <VisualHome primaryTask={primaryTask} imagePosts={imagePosts} profilePosts={profilePosts} articlePosts={articlePosts} />
+        <VisualHome primaryTask={primaryTask} imagePosts={imagePosts} profilePosts={profilePosts} articlePosts={articlePosts} bookmarkPosts={bookmarkPosts} productKind={productKind} />
       ) : null}
       {productKind === 'curation' ? (
-        <CurationHome primaryTask={primaryTask} bookmarkPosts={bookmarkPosts} profilePosts={profilePosts} articlePosts={articlePosts} />
+        <CurationHome primaryTask={primaryTask} bookmarkPosts={bookmarkPosts} profilePosts={profilePosts} articlePosts={articlePosts} productKind={productKind} />
       ) : null}
       <Footer />
     </div>

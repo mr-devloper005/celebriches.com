@@ -37,11 +37,11 @@ export const siteTaskDefinitions = [
     route: '/profile',
     description: 'Creator and business profiles.',
     contentType: 'profile',
-    enabled: true,
+    enabled: false,
   },
   {
     key: 'sbm',
-    label: 'Social Bookmarking',
+    label: 'Collection',
     route: '/sbm',
     description: 'Curated bookmarks and resources.',
     contentType: 'sbm',
