@@ -1,7 +1,6 @@
 import { ContentImage } from "@/components/shared/content-image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { useRouter } from "next/navigation";
 import { MapPin, Globe, Phone, Tag, Mail } from "lucide-react";
 import { NavbarShell } from "@/components/shared/navbar-shell";
 import { Footer } from "@/components/shared/footer";
@@ -19,7 +18,6 @@ import { RichContent, formatRichHtml } from "@/components/shared/rich-content";
 import { getFactoryState } from "@/design/factory/get-factory-state";
 import { getProductKind } from "@/design/factory/get-product-kind";
 import { DirectoryTaskDetailPage } from "@/design/products/directory/task-detail-page";
-import { useToast } from "@/components/ui/use-toast";
 
 type PostContent = {
   category?: string;
@@ -126,8 +124,6 @@ const buildMapEmbedUrl = (
 
 export async function TaskDetailPage({ task, slug }: { task: TaskKey; slug: string }) {
   const taskConfig = getTaskConfig(task);
-  const router = useRouter();
-  const { toast } = useToast();
   let post: SitePost | null = null;
   try {
     post = await fetchTaskPostBySlug(task, slug);
@@ -339,49 +335,37 @@ export async function TaskDetailPage({ task, slug }: { task: TaskKey; slug: stri
                             </div>
                           </div>
                           <Button 
+                            asChild
                             size="sm" 
                             variant="outline" 
                             className="ml-auto h-9 px-6 text-sm font-medium border-2 hover:bg-accent hover:text-accent-foreground transition-colors"
-                            onClick={() => router.push('/login')}
                           >
-                            Follow
+                            <Link href="/login">Follow</Link>
                           </Button>
                         </div>
 
                         {/* Engagement buttons */}
                         <div className="flex items-center justify-center gap-8 border-t border-border/30 pt-6">
-                          <button 
+                          <Link 
+                            href="/login"
                             className="group flex items-center gap-2 text-muted-foreground hover:text-foreground transition-all hover:scale-105"
-                            onClick={() => router.push('/login')}
                           >
                             <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
                             </svg>
                             <span className="text-sm font-medium">Bookmark</span>
-                          </button>
-                          <button 
+                          </Link>
+                          <a 
+                            href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(articleUrl)}`}
+                            target="_blank"
+                            rel="noreferrer"
                             className="group flex items-center gap-2 text-muted-foreground hover:text-foreground transition-all hover:scale-105"
-                            onClick={async () => {
-                              try {
-                                await navigator.clipboard.writeText(window.location.href);
-                                toast({
-                                  title: "Link copied",
-                                  description: "The page URL has been copied to your clipboard.",
-                                });
-                              } catch {
-                                toast({
-                                  title: "Copy failed",
-                                  description: "Failed to copy the URL.",
-                                  variant: "destructive",
-                                });
-                              }
-                            }}
                           >
                             <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m9.032 4.026a9.001 9.001 0 01-7.432 0m9.032-4.026A9.001 9.001 0 0112 3c-4.474 0-8.268 3.12-9.032 7.326m0 0A9.001 9.001 0 0012 21c4.474 0 8.268-3.12 9.032-7.326" />
                             </svg>
                             <span className="text-sm font-medium">Share</span>
-                          </button>
+                          </a>
                         </div>
                       </header>
 
