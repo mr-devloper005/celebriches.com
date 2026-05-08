@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { parseHtmlToBoldText, boldTextToHtml } from "@/utils/html-parser";
 
 const escapeHtml = (value: string) =>
   value
@@ -20,10 +21,14 @@ const sanitizeRichHtml = (html: string) =>
 export const formatRichHtml = (raw?: string | null, fallback = "Details coming soon.") => {
   const source = typeof raw === "string" ? raw.trim() : "";
   if (!source) return `<p>${escapeHtml(fallback)}</p>`;
+  
+  // Check if source contains HTML (likely from JSON data)
   if (/<[a-z][\s\S]*>/i.test(source)) {
+    // Sanitize HTML but preserve hyperlinks from backend
     return sanitizeRichHtml(source);
   }
 
+  // For plain text content, convert to paragraphs
   return source
     .split(/\n{2,}/)
     .map((paragraph) => `<p>${escapeHtml(paragraph.replace(/\n/g, " ").trim())}</p>`)

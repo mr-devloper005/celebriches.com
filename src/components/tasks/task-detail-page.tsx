@@ -1,3 +1,5 @@
+"use client";
+
 import { ContentImage } from "@/components/shared/content-image";
 import Link from "next/link";
 import { notFound } from "next/navigation";

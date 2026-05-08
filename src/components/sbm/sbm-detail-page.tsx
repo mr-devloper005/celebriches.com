@@ -368,11 +368,10 @@ export function SbmDetailPage({ task, slug }: { task: TaskKey; slug: string }) {
 
                       {/* Main content */}
                       <div className="max-w-4xl mx-auto">
-                        <div className="prose prose-slate max-w-none">
-                          <p className="text-lg leading-relaxed text-foreground/90">
-                            Accompany Professor Melissa as she takes you on a tour of the Fort Lauderdale port, highlighting its sights and sounds. Reserve your incredible trip now to create memories that will last forever.
-                          </p>
-                        </div>
+                        <RichContent 
+                          html={descriptionHtml}
+                          className="text-lg leading-relaxed text-foreground/90"
+                        />
                       </div>
                     </div>
                   </section>
