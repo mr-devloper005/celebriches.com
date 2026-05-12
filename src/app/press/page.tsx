@@ -49,12 +49,20 @@ export default function PressPage() {
                       </Button>
                       <Button
                         size="sm"
-                        onClick={() =>
+                        onClick={() => {
+                          if (asset.fileUrl) {
+                            const link = document.createElement('a')
+                            link.href = asset.fileUrl
+                            link.download = asset.title
+                            document.body.appendChild(link)
+                            link.click()
+                            document.body.removeChild(link)
+                          }
                           toast({
                             title: 'Download started',
                             description: `${asset.title} is downloading.`,
                           })
-                        }
+                        }}
                       >
                         Download
                       </Button>
@@ -75,7 +83,6 @@ export default function PressPage() {
                   <div key={item.id} className="rounded-lg border border-border bg-muted/40 p-4">
                     <div className="text-xs uppercase tracking-wide text-muted-foreground">{item.outlet}</div>
                     <p className="mt-2 text-sm font-medium text-foreground">{item.headline}</p>
-                    <p className="mt-2 text-xs text-muted-foreground">{item.date}</p>
                   </div>
                 ))}
               </div>

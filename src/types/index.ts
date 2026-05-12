@@ -221,6 +221,7 @@ export interface PressAsset {
   description: string
   fileType: string
   previewUrl?: string
+  fileUrl?: string
 }
 
 export interface ApiEndpoint {
