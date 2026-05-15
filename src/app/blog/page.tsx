@@ -59,8 +59,6 @@ export default function BlogPage() {
             <h2 className="mt-4 text-2xl font-semibold tracking-[-0.02em] text-foreground sm:text-3xl">{featured.title}</h2>
             <p className="mt-3 max-w-3xl text-sm leading-7 text-muted-foreground">{featured.excerpt}</p>
             <div className="mt-5 flex flex-wrap items-center gap-3 text-xs uppercase tracking-[0.16em] text-muted-foreground">
-              <span>{featured.date}</span>
-              <span>•</span>
               <span>{featured.readTime}</span>
             </div>
             <Button className="mt-6" asChild>
@@ -76,7 +74,6 @@ export default function BlogPage() {
                 <Badge variant="outline">{post.tag}</Badge>
                 <h3 className="mt-3 text-lg font-semibold text-foreground">{post.title}</h3>
                 <p className="mt-2 text-sm leading-7 text-muted-foreground">{post.excerpt}</p>
-                <div className="mt-4 text-xs uppercase tracking-[0.16em] text-muted-foreground">{post.date}</div>
               </CardContent>
             </Card>
           ))}

@@ -815,21 +815,24 @@ export const mockPressAssets: PressAsset[] = [
     title: 'Brand Logo Pack',
     description: 'SVG, PNG, and monochrome variations.',
     fileType: 'ZIP',
-    previewUrl: 'https://images.unsplash.com/photo-1529333166437-7750a6dd5a70?w=800&h=600&fit=crop'
+    previewUrl: 'https://images.unsplash.com/photo-1529333166437-7750a6dd5a70?w=800&h=600&fit=crop',
+    fileUrl: '/assets/brand-logo-pack.zip'
   },
   {
     id: 'press-2',
     title: 'Product Screenshots',
     description: 'High-resolution UI captures for media.',
     fileType: 'ZIP',
-    previewUrl: 'https://images.unsplash.com/photo-1545239351-1141bd82e8a6?w=800&h=600&fit=crop'
+    previewUrl: 'https://images.unsplash.com/photo-1545239351-1141bd82e8a6?w=800&h=600&fit=crop',
+    fileUrl: '/assets/product-screenshots.zip'
   },
   {
     id: 'press-3',
     title: 'Brand Guidelines',
     description: 'Usage rules, color palette, and typography.',
     fileType: 'PDF',
-    previewUrl: 'https://images.unsplash.com/photo-1520607162513-77705c0f0d4a?w=800&h=600&fit=crop'
+    previewUrl: 'https://images.unsplash.com/photo-1520607162513-77705c0f0d4a?w=800&h=600&fit=crop',
+    fileUrl: '/assets/brand-guidelines.pdf'
   }
 ]
 
